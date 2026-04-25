@@ -91,199 +91,331 @@
   .bag-item:hover { border-color: #c9a96e; }
   .bag-item .count { color: #c9a96e; font-weight: bold; }
 
-  /* ============ 战斗面板 ============ */
+  /* ============ 精美战斗面板（方案C） ============ */
   .battle-panel {
-    background: #1a1a2e;
+    background: #0f0f23;
     border: 2px solid #c9a96e;
-    border-radius: 12px;
-    padding: 16px;
+    border-radius: 16px;
+    padding: 20px;
     margin-bottom: 10px;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 0 30px rgba(201,169,110,0.15);
   }
 
-  /* 战斗场景背景 */
-  .battle-scene {
+  /* 动态背景 - 根据境界变色 */
+  .battle-bg {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 0;
+    opacity: 0.4;
+    transition: all 0.5s;
+  }
+  .bg-realm-0 { background: radial-gradient(ellipse at top, #1a3a1a 0%, #0f0f23 70%); }
+  .bg-realm-1 { background: radial-gradient(ellipse at top, #1a3a3a 0%, #0f0f23 70%); }
+  .bg-realm-2 { background: radial-gradient(ellipse at top, #3a1a3a 0%, #0f0f23 70%); }
+  .bg-realm-3 { background: radial-gradient(ellipse at top, #3a2a1a 0%, #0f0f23 70%); }
+  .bg-realm-4 { background: radial-gradient(ellipse at top, #1a1a3a 0%, #0f0f23 70%); }
+  .bg-realm-5 { background: radial-gradient(ellipse at top, #2a1a3a 0%, #0f0f23 70%); }
+  .bg-realm-6 { background: radial-gradient(ellipse at top, #3a1a2a 0%, #0f0f23 70%); }
+  .bg-realm-7 { background: radial-gradient(ellipse at top, #2a3a1a 0%, #0f0f23 70%); }
+  .bg-realm-8 { background: radial-gradient(ellipse at top, #1a2a3a 0%, #0f0f23 70%); }
+  .bg-realm-9 { background: radial-gradient(ellipse at top, #ffd54f 0%, #0f0f23 70%); }
+
+  /* 角色卡牌 */
+  .char-card {
     position: relative;
-    height: 200px;
+    z-index: 2;
+    background: rgba(26,26,46,0.9);
+    border: 2px solid #2d2d44;
+    border-radius: 12px;
+    padding: 16px;
+    width: 140px;
+    text-align: center;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  }
+  .char-card.active {
+    border-color: #c9a96e;
+    box-shadow: 0 0 20px rgba(201,169,110,0.3), 0 4px 15px rgba(0,0,0,0.3);
+  }
+
+  /* 角色立绘区域 */
+  .char-portrait {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    position: relative;
+    transition: all 0.3s;
+    border: 3px solid #2d2d44;
     background: #0f0f23;
-    border-radius: 8px;
-    margin-bottom: 12px;
+  }
+  .char-card.active .char-portrait {
+    border-color: #c9a96e;
+    box-shadow: 0 0 15px rgba(201,169,110,0.4);
+  }
+
+  /* 角色光晕 */
+  .char-portrait::after {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    transition: all 0.3s;
+  }
+  .char-card.active .char-portrait::after {
+    border-color: rgba(201,169,110,0.3);
+    animation: pulse-ring 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-ring {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 0.2; }
+  }
+
+  .char-name {
+    font-size: 0.85rem;
+    color: #c9a96e;
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+
+  /* 血条美化 */
+  .hp-bar-wrap {
+    width: 100%;
+    height: 10px;
+    background: #1a1a2e;
+    border-radius: 5px;
+    overflow: hidden;
+    border: 1px solid #2d2d44;
+    margin-bottom: 4px;
+    position: relative;
+  }
+  .hp-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+    position: relative;
+  }
+  .hp-bar-fill::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+  }
+  .hp-bar-fill.high { background: #2ecc71; }
+  .hp-bar-fill.mid { background: #f39c12; }
+  .hp-bar-fill.low { background: #e74c3c; }
+
+  .hp-text {
+    font-size: 0.7rem;
+    color: #888;
+  }
+
+  /* 战斗场景 */
+  .battle-arena {
+    position: relative;
+    height: 220px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 30px;
-    overflow: hidden;
+    padding: 0 20px;
+    margin-bottom: 16px;
+    z-index: 1;
   }
 
-  /* 场景装饰 */
-  .battle-scene::before {
-    content: "";
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 40px;
-    background: #1a1a2e;
-    border-top: 2px solid #2d2d44;
-  }
-
-  /* 角色容器 */
-  .actor-emoji-container {
-    position: relative;
-    z-index: 2;
-    text-align: center;
-    transition: all 0.3s;
-  }
-
-  .actor-emoji {
-    font-size: 4.5rem;
-    line-height: 1;
-    transition: all 0.3s ease;
-    display: block;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
-  }
-
-  .actor-name-battle {
-    font-size: 0.9rem;
+  /* VS 标记 */
+  .vs-badge {
+    font-size: 1.5rem;
     color: #c9a96e;
-    margin-top: 8px;
     font-weight: bold;
+    z-index: 2;
+    text-shadow: 0 0 10px rgba(201,169,110,0.5);
   }
 
-  .actor-hp-bar {
-    width: 100px;
-    height: 8px;
-    background: #2d2d44;
-    border-radius: 4px;
-    margin: 4px auto;
-    overflow: hidden;
-    border: 1px solid #444;
-  }
-
-  .actor-hp-fill {
-    height: 100%;
-    background: #e74c3c;
-    transition: width 0.5s;
-    border-radius: 3px;
-  }
-
-  .actor-hp-text {
-    font-size: 0.7rem;
-    color: #aaa;
-  }
-
-  /* 攻击动画 - 冲向敌人 */
-  @keyframes lunge-right {
+  /* 攻击动画增强 */
+  @keyframes lunge-player {
     0% { transform: translateX(0) scale(1); }
-    40% { transform: translateX(80px) scale(1.15); }
+    30% { transform: translateX(100px) scale(1.2); filter: brightness(1.5); }
+    60% { transform: translateX(100px) scale(1.1); }
     100% { transform: translateX(0) scale(1); }
   }
-
-  @keyframes lunge-left {
+  @keyframes lunge-enemy {
     0% { transform: translateX(0) scale(1); }
-    40% { transform: translateX(-80px) scale(1.15); }
+    30% { transform: translateX(-100px) scale(1.2); filter: brightness(1.5); }
+    60% { transform: translateX(-100px) scale(1.1); }
     100% { transform: translateX(0) scale(1); }
   }
-
-  .player-emoji.attack {
-    animation: lunge-right 0.5s ease;
+  .portrait-attack-player {
+    animation: lunge-player 0.6s ease;
+  }
+  .portrait-attack-enemy {
+    animation: lunge-enemy 0.6s ease;
   }
 
-  .enemy-emoji.attack {
-    animation: lunge-left 0.5s ease;
+  /* 受伤效果增强 */
+  @keyframes hurt-shake {
+    0%, 100% { transform: translateX(0) rotate(0deg); }
+    15% { transform: translateX(-15px) rotate(-8deg); }
+    30% { transform: translateX(15px) rotate(8deg); }
+    45% { transform: translateX(-10px) rotate(-5deg); }
+    60% { transform: translateX(10px) rotate(5deg); }
+    75% { transform: translateX(-5px) rotate(-2deg); }
+    90% { transform: translateX(5px) rotate(2deg); }
+  }
+  .portrait-hurt {
+    animation: hurt-shake 0.6s ease;
+    filter: grayscale(0.5) brightness(0.5) sepia(0.8) hue-rotate(-50deg) !important;
   }
 
-  /* 受伤震动 */
-  @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    20% { transform: translateX(-12px) rotate(-5deg); }
-    40% { transform: translateX(12px) rotate(5deg); }
-    60% { transform: translateX(-8px) rotate(-3deg); }
-    80% { transform: translateX(8px) rotate(3deg); }
+  /* 伤害数字 - 更炫酷 */
+  @keyframes damage-rise {
+    0% { transform: translate(-50%, 0) scale(0.3); opacity: 0; }
+    15% { transform: translate(-50%, -30px) scale(1.5); opacity: 1; }
+    40% { transform: translate(-50%, -50px) scale(1.2); opacity: 1; }
+    100% { transform: translate(-50%, -90px) scale(0.8); opacity: 0; }
   }
-
-  .hurt {
-    animation: shake 0.5s ease;
-    filter: grayscale(0.3) brightness(0.6) sepia(0.5) hue-rotate(-30deg);
-  }
-
-  /* 伤害数字飘出 */
-  @keyframes damage-float {
-    0% { transform: translateY(0) scale(0.5); opacity: 0; }
-    20% { transform: translateY(-20px) scale(1.3); opacity: 1; }
-    100% { transform: translateY(-60px) scale(1); opacity: 0; }
-  }
-
-  .damage-number {
+  .dmg-num {
     position: absolute;
-    top: -20px;
+    top: -10px;
     left: 50%;
-    transform: translateX(-50%);
-    font-size: 1.8rem;
+    font-size: 2rem;
     font-weight: bold;
-    color: #e74c3c;
-    text-shadow: 0 0 8px rgba(231,76,60,0.6);
     pointer-events: none;
-    animation: damage-float 1s ease-out forwards;
-    z-index: 10;
+    z-index: 20;
+    animation: damage-rise 1.2s ease-out forwards;
+    text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+  }
+  .dmg-normal { color: #e74c3c; }
+  .dmg-crit { 
+    color: #ffd700; 
+    font-size: 2.6rem;
+    text-shadow: 0 0 15px #ffd700, 0 0 30px #ff6b00, 0 0 45px rgba(255,107,0,0.5);
+  }
+  .dmg-heal { 
+    color: #00ff88; 
+    text-shadow: 0 0 10px #00ff88, 0 0 20px rgba(0,255,136,0.5);
   }
 
-  .heal-number {
-    color: #2ecc71;
-    text-shadow: 0 0 8px rgba(46,204,113,0.6);
+  /* 技能特效 - 全屏光效 */
+  @keyframes slash-sweep {
+    0% { opacity: 0; transform: translateX(-100px) scaleX(0.3) rotate(-30deg); }
+    30% { opacity: 1; transform: translateX(0) scaleX(1.5) rotate(0deg); }
+    100% { opacity: 0; transform: translateX(100px) scaleX(2) rotate(30deg); }
+  }
+  @keyframes fire-burst {
+    0% { opacity: 0; transform: scale(0.2); filter: blur(10px); }
+    40% { opacity: 1; transform: scale(1.8); filter: blur(0px); }
+    100% { opacity: 0; transform: scale(3); filter: blur(5px); }
+  }
+  @keyframes sword-glow {
+    0% { opacity: 0; transform: scale(0.5); filter: blur(5px) brightness(1); }
+    50% { opacity: 1; transform: scale(2.5); filter: blur(2px) brightness(3); }
+    100% { opacity: 0; transform: scale(4); filter: blur(0px) brightness(1); }
   }
 
-  .crit-number {
-    color: #ffd54f;
-    font-size: 2.2rem;
-    text-shadow: 0 0 12px rgba(255,213,79,0.8);
-  }
-
-  /* 技能特效 */
-  @keyframes slash-effect {
-    0% { opacity: 0; transform: scale(0.3) rotate(-45deg); }
-    30% { opacity: 1; transform: scale(1.2) rotate(0deg); }
-    100% { opacity: 0; transform: scale(2) rotate(45deg); }
-  }
-
-  @keyframes fire-effect {
-    0% { opacity: 0; transform: scale(0.5) translateY(20px); }
-    50% { opacity: 1; transform: scale(1.3) translateY(-10px); }
-    100% { opacity: 0; transform: scale(1.8) translateY(-30px); }
-  }
-
-  @keyframes sword-aura {
-    0% { opacity: 0; transform: scale(0.3); }
-    50% { opacity: 1; transform: scale(1.5); filter: brightness(2); }
-    100% { opacity: 0; transform: scale(2.5); }
-  }
-
-  .effect-overlay {
+  .fx-overlay {
     position: absolute;
-    font-size: 3rem;
     pointer-events: none;
-    z-index: 5;
-    animation: slash-effect 0.6s ease-out forwards;
-  }
-
-  .effect-fire {
-    animation: fire-effect 0.7s ease-out forwards;
-  }
-
-  .effect-sword {
-    animation: sword-aura 0.8s ease-out forwards;
+    z-index: 15;
     font-size: 4rem;
   }
+  .fx-slash {
+    animation: slash-sweep 0.5s ease-out forwards;
+    color: #fff;
+    text-shadow: 0 0 20px #e74c3c, 0 0 40px #e74c3c;
+  }
+  .fx-fire {
+    animation: fire-burst 0.7s ease-out forwards;
+    color: #ff6b00;
+    text-shadow: 0 0 30px #ff6b00, 0 0 60px #ff0000;
+  }
+  .fx-sword {
+    animation: sword-glow 0.8s ease-out forwards;
+    color: #ffd700;
+    text-shadow: 0 0 30px #ffd700, 0 0 60px #fff;
+  }
+  .fx-heal {
+    animation: fire-burst 0.6s ease-out forwards;
+    color: #00ff88;
+    text-shadow: 0 0 20px #00ff88;
+  }
 
-  /* 回合指示 */
-  .turn-indicator {
+  /* 屏幕震动（暴击时） */
+  @keyframes screen-shake {
+    0%, 100% { transform: translate(0, 0); }
+    10% { transform: translate(-5px, 3px); }
+    20% { transform: translate(5px, -3px); }
+    30% { transform: translate(-3px, 5px); }
+    40% { transform: translate(3px, -5px); }
+    50% { transform: translate(-2px, 2px); }
+    60% { transform: translate(2px, -2px); }
+    70% { transform: translate(-1px, 1px); }
+    80% { transform: translate(1px, -1px); }
+  }
+  .screen-shake {
+    animation: screen-shake 0.4s ease;
+  }
+
+  /* 回合指示器 */
+  .turn-bar {
     text-align: center;
     color: #c9a96e;
     font-size: 0.9rem;
-    margin-bottom: 10px;
-    padding: 6px;
-    background: #0f0f23;
-    border-radius: 6px;
+    margin-bottom: 12px;
+    padding: 8px;
+    background: rgba(15,15,35,0.8);
+    border-radius: 8px;
     border: 1px solid #2d2d44;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* 粒子效果容器 */
+  .particles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5;
+    overflow: hidden;
+  }
+  .particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    animation: particle-float 3s ease-in-out infinite;
+  }
+  @keyframes particle-float {
+    0%, 100% { transform: translateY(0) opacity(0); }
+    50% { opacity: 0.6; }
+    100% { transform: translateY(-200px); opacity: 0; }
+  }
+
+  /* 胜利/失败 */
+  @keyframes victory-jump {
+    0%, 100% { transform: translateY(0) scale(1); }
+    30% { transform: translateY(-25px) scale(1.15); }
+    60% { transform: translateY(-10px) scale(1.05); }
+  }
+  .victory-anim .char-portrait {
+    animation: victory-jump 0.5s ease 4;
+    border-color: #ffd700 !important;
+    box-shadow: 0 0 30px rgba(255,215,0,0.5) !important;
+  }
+  @keyframes defeat-fall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(40px) rotate(15deg); opacity: 0; }
+  }
+  .defeat-anim .char-portrait {
+    animation: defeat-fall 1s ease forwards;
   }
 
   /* 战斗按钮 */
@@ -291,14 +423,14 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 8px;
+    position: relative;
+    z-index: 1;
   }
-
   .battle-actions button {
     padding: 14px 8px;
     font-size: 0.9rem;
     border-width: 2px;
   }
-
   .battle-actions button.attack { border-color: #e74c3c; color: #e74c3c; }
   .battle-actions button.attack:hover { background: #e74c3c; color: #fff; }
   .battle-actions button.spell { border-color: #3498db; color: #3498db; }
@@ -311,25 +443,6 @@
   .battle-actions button.weapon:hover { background: #ffd54f; color: #0f0f23; }
 
   .hidden { display: none !important; }
-
-  /* 战斗结果动画 */
-  @keyframes victory-bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-20px); }
-  }
-
-  .victory .player-emoji {
-    animation: victory-bounce 0.6s ease 3;
-  }
-
-  @keyframes defeat-fade {
-    0% { opacity: 1; transform: translateY(0); }
-    100% { opacity: 0; transform: translateY(30px); }
-  }
-
-  .defeat .player-emoji {
-    animation: defeat-fade 1s ease forwards;
-  }
 </style>
 </head>
 <body>
@@ -366,31 +479,34 @@
 
 <!-- 战斗面板 -->
 <div id="battlePanel" class="hidden">
-  <div class="battle-panel">
-    <div class="turn-indicator" id="turnIndicator">⚔️ 第 1 回合 - 你的回合</div>
+  <div class="battle-panel" id="battlePanelInner">
+    <div class="battle-bg" id="battleBg"></div>
+    <div class="particles" id="particles"></div>
 
-    <div class="battle-scene" id="battleScene">
+    <div class="turn-bar" id="turnIndicator">⚔️ 第 1 回合 - 你的回合</div>
+
+    <div class="battle-arena" id="battleArena">
       <!-- 玩家 -->
-      <div class="actor-emoji-container" id="playerContainer">
-        <div class="actor-emoji player-emoji" id="playerEmoji">🧘‍♂️</div>
-        <div class="actor-name-battle">你</div>
-        <div class="actor-hp-bar">
-          <div class="actor-hp-fill" id="playerHpFill" style="width:100%"></div>
+      <div class="char-card active" id="playerCard">
+        <div class="char-portrait" id="playerPortrait">🧘‍♂️</div>
+        <div class="char-name">你</div>
+        <div class="hp-bar-wrap">
+          <div class="hp-bar-fill high" id="playerHpFill" style="width:100%"></div>
         </div>
-        <div class="actor-hp-text" id="playerHpText">100/100</div>
+        <div class="hp-text" id="playerHpText">100/100</div>
       </div>
 
       <!-- VS -->
-      <div class="vs-mark">VS</div>
+      <div class="vs-badge">VS</div>
 
       <!-- 敌人 -->
-      <div class="actor-emoji-container" id="enemyContainer">
-        <div class="actor-emoji enemy-emoji" id="enemyEmoji">🐺</div>
-        <div class="actor-name-battle" id="enemyNameBattle">🐺 妖兽</div>
-        <div class="actor-hp-bar">
-          <div class="actor-hp-fill" id="enemyHpFill" style="width:100%"></div>
+      <div class="char-card" id="enemyCard">
+        <div class="char-portrait" id="enemyPortrait">🐺</div>
+        <div class="char-name" id="enemyName">🐺 妖兽</div>
+        <div class="hp-bar-wrap">
+          <div class="hp-bar-fill high" id="enemyHpFill" style="width:100%"></div>
         </div>
-        <div class="actor-hp-text" id="enemyHpText">80/80</div>
+        <div class="hp-text" id="enemyHpText">80/80</div>
       </div>
     </div>
 
@@ -545,6 +661,7 @@ class Battle {
 
     this.showUI();
     this.updateUI();
+    this.spawnParticles();
     this.game.log(`⚔️ 遭遇 ${this.enemy.emoji} ${this.enemy.name}！战斗开始！`);
 
     if (!this.playerTurn) {
@@ -555,10 +672,15 @@ class Battle {
   showUI() {
     document.getElementById('normalPanel').classList.add('hidden');
     document.getElementById('battlePanel').classList.remove('hidden');
-    document.getElementById('playerEmoji').textContent = this.player.emoji;
-    document.getElementById('enemyEmoji').textContent = this.enemy.emoji;
-    document.getElementById('enemyNameBattle').textContent = `${this.enemy.emoji} ${this.enemy.name}`;
-    document.getElementById('battleScene').classList.remove('victory', 'defeat');
+    document.getElementById('playerPortrait').textContent = this.player.emoji;
+    document.getElementById('enemyPortrait').textContent = this.enemy.emoji;
+    document.getElementById('enemyName').textContent = `${this.enemy.emoji} ${this.enemy.name}`;
+    document.getElementById('battlePanelInner').classList.remove('victory-anim', 'defeat-anim');
+    document.getElementById('battleArena').classList.remove('screen-shake');
+
+    // 设置背景
+    const bg = document.getElementById('battleBg');
+    bg.className = `battle-bg bg-realm-${Math.min(this.game.realmIndex, 9)}`;
   }
 
   hideUI() {
@@ -566,18 +688,43 @@ class Battle {
     document.getElementById('battlePanel').classList.add('hidden');
   }
 
+  spawnParticles() {
+    const container = document.getElementById('particles');
+    container.innerHTML = '';
+    const colors = ['#c9a96e', '#e74c3c', '#3498db', '#2ecc71', '#9b59b6'];
+    for (let i = 0; i < 15; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.left = Math.random() * 100 + '%';
+      p.style.top = Math.random() * 100 + '%';
+      p.style.background = colors[Math.floor(Math.random() * colors.length)];
+      p.style.animationDelay = Math.random() * 3 + 's';
+      p.style.animationDuration = (2 + Math.random() * 2) + 's';
+      container.appendChild(p);
+    }
+  }
+
   updateUI() {
     const p = this.player;
     const e = this.enemy;
 
     document.getElementById('playerHpText').textContent = `${Math.floor(p.hp)}/${Math.floor(p.maxHp)}`;
-    document.getElementById('playerHpFill').style.width = `${Math.max(0, p.hp / p.maxHp * 100)}%`;
+    const phpPct = Math.max(0, p.hp / p.maxHp * 100);
+    const pHpFill = document.getElementById('playerHpFill');
+    pHpFill.style.width = phpPct + '%';
+    pHpFill.className = `hp-bar-fill ${phpPct > 50 ? 'high' : phpPct > 25 ? 'mid' : 'low'}`;
 
     document.getElementById('enemyHpText').textContent = `${Math.floor(e.hp)}/${Math.floor(e.maxHp)}`;
-    document.getElementById('enemyHpFill').style.width = `${Math.max(0, e.hp / e.maxHp * 100)}%`;
+    const ehpPct = Math.max(0, e.hp / e.maxHp * 100);
+    const eHpFill = document.getElementById('enemyHpFill');
+    eHpFill.style.width = ehpPct + '%';
+    eHpFill.className = `hp-bar-fill ${ehpPct > 50 ? 'high' : ehpPct > 25 ? 'mid' : 'low'}`;
 
     document.getElementById('turnIndicator').textContent =
       this.playerTurn ? `⚔️ 第 ${this.turn} 回合 - 你的回合` : `⚔️ 第 ${this.turn} 回合 - ${e.emoji} ${e.name}的回合`;
+
+    document.getElementById('playerCard').classList.toggle('active', this.playerTurn);
+    document.getElementById('enemyCard').classList.toggle('active', !this.playerTurn);
 
     const buttons = document.querySelectorAll('#battleActions button');
     buttons.forEach(btn => btn.disabled = !this.playerTurn || !this.active);
@@ -587,32 +734,31 @@ class Battle {
 
   // 动画效果
   showDamage(target, damage, isCrit = false, isHeal = false) {
-    const container = target === 'player' ? document.getElementById('playerContainer') : document.getElementById('enemyContainer');
+    const container = target === 'player' ? document.getElementById('playerCard') : document.getElementById('enemyCard');
     const div = document.createElement('div');
-    div.className = `damage-number ${isCrit ? 'crit-number' : ''} ${isHeal ? 'heal-number' : ''}`;
-    div.textContent = isHeal ? `+${damage}` : `-${damage}`;
-    if (isCrit) div.textContent = `暴击! -${damage}`;
+    div.className = `dmg-num ${isCrit ? 'dmg-crit' : isHeal ? 'dmg-heal' : 'dmg-normal'}`;
+    div.textContent = isHeal ? `+${damage}` : isCrit ? `暴击! -${damage}` : `-${damage}`;
     container.appendChild(div);
-    setTimeout(() => div.remove(), 1000);
+    setTimeout(() => div.remove(), 1200);
   }
 
   showEffect(type, target) {
-    const container = target === 'player' ? document.getElementById('playerContainer') : document.getElementById('enemyContainer');
+    const container = target === 'player' ? document.getElementById('playerCard') : document.getElementById('enemyCard');
     const effect = document.createElement('div');
-    effect.className = 'effect-overlay';
+    effect.className = 'fx-overlay';
 
     if (type === 'slash') {
       effect.textContent = '⚔️';
+      effect.classList.add('fx-slash');
     } else if (type === 'spell') {
       effect.textContent = '🔥';
-      effect.classList.add('effect-fire');
+      effect.classList.add('fx-fire');
     } else if (type === 'weapon') {
       effect.textContent = '⚡';
-      effect.classList.add('effect-sword');
+      effect.classList.add('fx-sword');
     } else if (type === 'heal') {
       effect.textContent = '💚';
-      effect.style.animation = 'none';
-      effect.style.fontSize = '2rem';
+      effect.classList.add('fx-heal');
     }
 
     container.appendChild(effect);
@@ -621,22 +767,27 @@ class Battle {
 
   animateAttack(attacker) {
     if (attacker === 'player') {
-      document.getElementById('playerEmoji').classList.add('attack');
-      setTimeout(() => document.getElementById('playerEmoji').classList.remove('attack'), 500);
+      document.getElementById('playerPortrait').classList.add('portrait-attack-player');
+      setTimeout(() => document.getElementById('playerPortrait').classList.remove('portrait-attack-player'), 600);
     } else {
-      document.getElementById('enemyEmoji').classList.add('attack');
-      setTimeout(() => document.getElementById('enemyEmoji').classList.remove('attack'), 500);
+      document.getElementById('enemyPortrait').classList.add('portrait-attack-enemy');
+      setTimeout(() => document.getElementById('enemyPortrait').classList.remove('portrait-attack-enemy'), 600);
     }
   }
 
   animateHurt(target) {
     if (target === 'player') {
-      document.getElementById('playerEmoji').classList.add('hurt');
-      setTimeout(() => document.getElementById('playerEmoji').classList.remove('hurt'), 500);
+      document.getElementById('playerPortrait').classList.add('portrait-hurt');
+      setTimeout(() => document.getElementById('playerPortrait').classList.remove('portrait-hurt'), 600);
     } else {
-      document.getElementById('enemyEmoji').classList.add('hurt');
-      setTimeout(() => document.getElementById('enemyEmoji').classList.remove('hurt'), 500);
+      document.getElementById('enemyPortrait').classList.add('portrait-hurt');
+      setTimeout(() => document.getElementById('enemyPortrait').classList.remove('portrait-hurt'), 600);
     }
+  }
+
+  screenShake() {
+    document.getElementById('battleArena').classList.add('screen-shake');
+    setTimeout(() => document.getElementById('battleArena').classList.remove('screen-shake'), 400);
   }
 
   playerAction(action) {
@@ -657,11 +808,12 @@ class Battle {
           this.showEffect('slash', 'enemy');
           this.animateHurt('enemy');
           this.showDamage('enemy', damage, isCrit);
+          if (isCrit) this.screenShake();
           this.game.log(`你使出普通攻击，造成 ${damage} 点伤害！`);
           this.updateUI();
           this.checkWin();
         }, 300);
-        return; // 异步处理，后面统一
+        return;
 
       case 'spell':
         if (p.mp < 10) { this.game.log("法力不足！"); return; }
@@ -674,6 +826,7 @@ class Battle {
           this.showEffect('spell', 'enemy');
           this.animateHurt('enemy');
           this.showDamage('enemy', damage, isCrit);
+          if (isCrit) this.screenShake();
           this.game.log(`你运转灵力释放法术🔥，造成 ${damage} 点伤害！`);
           this.updateUI();
           this.checkWin();
@@ -691,6 +844,7 @@ class Battle {
           this.showEffect('weapon', 'enemy');
           this.animateHurt('enemy');
           this.showDamage('enemy', damage, isCrit);
+          this.screenShake();
           this.game.log(`你祭起飞剑⚡，剑气纵横！造成 ${damage} 点伤害！`);
           this.updateUI();
           this.checkWin();
@@ -748,6 +902,7 @@ class Battle {
           p.hp -= damage;
           this.animateHurt('player');
           this.showDamage('player', damage, isCrit);
+          if (isCrit) this.screenShake();
           this.game.log(`${e.emoji} ${e.name} 发动攻击，造成 ${damage} 点伤害！`);
           this.updateUI();
           if (p.hp <= 0) setTimeout(() => this.lose(), 600);
@@ -769,6 +924,7 @@ class Battle {
           this.showEffect('spell', 'player');
           this.animateHurt('player');
           this.showDamage('player', damage, isCrit);
+          if (isCrit) this.screenShake();
           this.game.log(`${e.emoji} ${e.name} 释放妖术🔥，造成 ${damage} 点伤害！`);
           this.updateUI();
           if (p.hp <= 0) setTimeout(() => this.lose(), 600);
@@ -835,7 +991,7 @@ class Battle {
   }
 
   win() {
-    document.getElementById('battleScene').classList.add('victory');
+    document.getElementById('battlePanelInner').classList.add('victory-anim');
     const g = this.game;
     const expGain = Math.floor(20 + g.realmIndex * 15 + Math.random() * 20);
     const stoneGain = Math.floor(2 + Math.random() * 5 + g.realmIndex);
@@ -856,7 +1012,7 @@ class Battle {
   }
 
   lose() {
-    document.getElementById('battleScene').classList.add('defeat');
+    document.getElementById('battlePanelInner').classList.add('defeat-anim');
     this.game.log("💀 你重伤倒地，敌人扬长而去...");
     this.game.lifespan -= 10;
     if (this.game.lifespan <= 0) {
