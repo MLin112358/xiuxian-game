@@ -91,46 +91,214 @@
   .bag-item:hover { border-color: #c9a96e; }
   .bag-item .count { color: #c9a96e; font-weight: bold; }
 
-  /* 战斗专用样式 */
+  /* ============ 战斗面板 ============ */
   .battle-panel {
     background: #1a1a2e;
-    border: 1px solid #c9a96e;
-    border-radius: 8px;
-    padding: 12px;
+    border: 2px solid #c9a96e;
+    border-radius: 12px;
+    padding: 16px;
     margin-bottom: 10px;
+    position: relative;
+    overflow: hidden;
   }
-  .battle-actors {
+
+  /* 战斗场景背景 */
+  .battle-scene {
+    position: relative;
+    height: 200px;
+    background: #0f0f23;
+    border-radius: 8px;
+    margin-bottom: 12px;
     display: flex;
     justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 12px;
+    align-items: center;
+    padding: 0 30px;
+    overflow: hidden;
   }
-  .actor-card {
-    flex: 1;
-    background: #0f0f23;
-    border: 1px solid #2d2d44;
-    border-radius: 6px;
-    padding: 10px;
+
+  /* 场景装饰 */
+  .battle-scene::before {
+    content: "";
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 40px;
+    background: #1a1a2e;
+    border-top: 2px solid #2d2d44;
+  }
+
+  /* 角色容器 */
+  .actor-emoji-container {
+    position: relative;
+    z-index: 2;
     text-align: center;
+    transition: all 0.3s;
   }
-  .actor-card.active {
-    border-color: #c9a96e;
-    box-shadow: 0 0 8px rgba(201,169,110,0.2);
+
+  .actor-emoji {
+    font-size: 4.5rem;
+    line-height: 1;
+    transition: all 0.3s ease;
+    display: block;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
   }
-  .actor-name { font-size: 1rem; color: #c9a96e; margin-bottom: 4px; }
-  .actor-hp, .actor-mp { font-size: 0.75rem; margin: 2px 0; }
-  .actor-hp span { color: #e74c3c; }
-  .actor-mp span { color: #3498db; }
-  .vs-mark { display: flex; align-items: center; font-size: 1.2rem; color: #c9a96e; font-weight: bold; }
+
+  .actor-name-battle {
+    font-size: 0.9rem;
+    color: #c9a96e;
+    margin-top: 8px;
+    font-weight: bold;
+  }
+
+  .actor-hp-bar {
+    width: 100px;
+    height: 8px;
+    background: #2d2d44;
+    border-radius: 4px;
+    margin: 4px auto;
+    overflow: hidden;
+    border: 1px solid #444;
+  }
+
+  .actor-hp-fill {
+    height: 100%;
+    background: #e74c3c;
+    transition: width 0.5s;
+    border-radius: 3px;
+  }
+
+  .actor-hp-text {
+    font-size: 0.7rem;
+    color: #aaa;
+  }
+
+  /* 攻击动画 - 冲向敌人 */
+  @keyframes lunge-right {
+    0% { transform: translateX(0) scale(1); }
+    40% { transform: translateX(80px) scale(1.15); }
+    100% { transform: translateX(0) scale(1); }
+  }
+
+  @keyframes lunge-left {
+    0% { transform: translateX(0) scale(1); }
+    40% { transform: translateX(-80px) scale(1.15); }
+    100% { transform: translateX(0) scale(1); }
+  }
+
+  .player-emoji.attack {
+    animation: lunge-right 0.5s ease;
+  }
+
+  .enemy-emoji.attack {
+    animation: lunge-left 0.5s ease;
+  }
+
+  /* 受伤震动 */
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-12px) rotate(-5deg); }
+    40% { transform: translateX(12px) rotate(5deg); }
+    60% { transform: translateX(-8px) rotate(-3deg); }
+    80% { transform: translateX(8px) rotate(3deg); }
+  }
+
+  .hurt {
+    animation: shake 0.5s ease;
+    filter: grayscale(0.3) brightness(0.6) sepia(0.5) hue-rotate(-30deg);
+  }
+
+  /* 伤害数字飘出 */
+  @keyframes damage-float {
+    0% { transform: translateY(0) scale(0.5); opacity: 0; }
+    20% { transform: translateY(-20px) scale(1.3); opacity: 1; }
+    100% { transform: translateY(-60px) scale(1); opacity: 0; }
+  }
+
+  .damage-number {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #e74c3c;
+    text-shadow: 0 0 8px rgba(231,76,60,0.6);
+    pointer-events: none;
+    animation: damage-float 1s ease-out forwards;
+    z-index: 10;
+  }
+
+  .heal-number {
+    color: #2ecc71;
+    text-shadow: 0 0 8px rgba(46,204,113,0.6);
+  }
+
+  .crit-number {
+    color: #ffd54f;
+    font-size: 2.2rem;
+    text-shadow: 0 0 12px rgba(255,213,79,0.8);
+  }
+
+  /* 技能特效 */
+  @keyframes slash-effect {
+    0% { opacity: 0; transform: scale(0.3) rotate(-45deg); }
+    30% { opacity: 1; transform: scale(1.2) rotate(0deg); }
+    100% { opacity: 0; transform: scale(2) rotate(45deg); }
+  }
+
+  @keyframes fire-effect {
+    0% { opacity: 0; transform: scale(0.5) translateY(20px); }
+    50% { opacity: 1; transform: scale(1.3) translateY(-10px); }
+    100% { opacity: 0; transform: scale(1.8) translateY(-30px); }
+  }
+
+  @keyframes sword-aura {
+    0% { opacity: 0; transform: scale(0.3); }
+    50% { opacity: 1; transform: scale(1.5); filter: brightness(2); }
+    100% { opacity: 0; transform: scale(2.5); }
+  }
+
+  .effect-overlay {
+    position: absolute;
+    font-size: 3rem;
+    pointer-events: none;
+    z-index: 5;
+    animation: slash-effect 0.6s ease-out forwards;
+  }
+
+  .effect-fire {
+    animation: fire-effect 0.7s ease-out forwards;
+  }
+
+  .effect-sword {
+    animation: sword-aura 0.8s ease-out forwards;
+    font-size: 4rem;
+  }
+
+  /* 回合指示 */
+  .turn-indicator {
+    text-align: center;
+    color: #c9a96e;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    padding: 6px;
+    background: #0f0f23;
+    border-radius: 6px;
+    border: 1px solid #2d2d44;
+  }
+
+  /* 战斗按钮 */
   .battle-actions {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 6px;
+    gap: 8px;
   }
+
   .battle-actions button {
-    padding: 12px 8px;
+    padding: 14px 8px;
     font-size: 0.9rem;
+    border-width: 2px;
   }
+
   .battle-actions button.attack { border-color: #e74c3c; color: #e74c3c; }
   .battle-actions button.attack:hover { background: #e74c3c; color: #fff; }
   .battle-actions button.spell { border-color: #3498db; color: #3498db; }
@@ -139,22 +307,29 @@
   .battle-actions button.item:hover { background: #2ecc71; color: #fff; }
   .battle-actions button.flee { border-color: #9b59b6; color: #9b59b6; }
   .battle-actions button.flee:hover { background: #9b59b6; color: #fff; }
-  .turn-indicator {
-    text-align: center;
-    color: #c9a96e;
-    font-size: 0.85rem;
-    margin-bottom: 8px;
-  }
-  .damage-popup {
-    animation: pop 0.6s ease-out forwards;
-    font-weight: bold;
-    font-size: 1rem;
-  }
-  @keyframes pop {
-    0% { transform: translateY(0); opacity: 1; }
-    100% { transform: translateY(-20px); opacity: 0; }
-  }
+  .battle-actions button.weapon { border-color: #ffd54f; color: #ffd54f; }
+  .battle-actions button.weapon:hover { background: #ffd54f; color: #0f0f23; }
+
   .hidden { display: none !important; }
+
+  /* 战斗结果动画 */
+  @keyframes victory-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+
+  .victory .player-emoji {
+    animation: victory-bounce 0.6s ease 3;
+  }
+
+  @keyframes defeat-fade {
+    0% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(30px); }
+  }
+
+  .defeat .player-emoji {
+    animation: defeat-fade 1s ease forwards;
+  }
 </style>
 </head>
 <body>
@@ -193,29 +368,48 @@
 <div id="battlePanel" class="hidden">
   <div class="battle-panel">
     <div class="turn-indicator" id="turnIndicator">⚔️ 第 1 回合 - 你的回合</div>
-    <div class="battle-actors">
-      <div class="actor-card active" id="playerCard">
-        <div class="actor-name">🧘 你</div>
-        <div class="actor-hp">气血: <span id="playerHp">100/100</span></div>
-        <div class="actor-mp">法力: <span id="playerMp">50/50</span></div>
-        <div class="progress-bar"><div class="progress-fill hp" id="playerHpBar" style="width:100%"></div></div>
-        <div class="progress-bar"><div class="progress-fill mp" id="playerMpBar" style="width:100%"></div></div>
+
+    <div class="battle-scene" id="battleScene">
+      <!-- 玩家 -->
+      <div class="actor-emoji-container" id="playerContainer">
+        <div class="actor-emoji player-emoji" id="playerEmoji">🧘‍♂️</div>
+        <div class="actor-name-battle">你</div>
+        <div class="actor-hp-bar">
+          <div class="actor-hp-fill" id="playerHpFill" style="width:100%"></div>
+        </div>
+        <div class="actor-hp-text" id="playerHpText">100/100</div>
       </div>
+
+      <!-- VS -->
       <div class="vs-mark">VS</div>
-      <div class="actor-card" id="enemyCard">
-        <div class="actor-name" id="enemyName">🐺 妖兽</div>
-        <div class="actor-hp">气血: <span id="enemyHp">80/80</span></div>
-        <div class="actor-mp">法力: <span id="enemyMp">30/30</span></div>
-        <div class="progress-bar"><div class="progress-fill hp" id="enemyHpBar" style="width:100%"></div></div>
-        <div class="progress-bar"><div class="progress-fill mp" id="enemyMpBar" style="width:100%"></div></div>
+
+      <!-- 敌人 -->
+      <div class="actor-emoji-container" id="enemyContainer">
+        <div class="actor-emoji enemy-emoji" id="enemyEmoji">🐺</div>
+        <div class="actor-name-battle" id="enemyNameBattle">🐺 妖兽</div>
+        <div class="actor-hp-bar">
+          <div class="actor-hp-fill" id="enemyHpFill" style="width:100%"></div>
+        </div>
+        <div class="actor-hp-text" id="enemyHpText">80/80</div>
       </div>
     </div>
+
     <div class="battle-actions" id="battleActions">
-      <button class="attack" onclick="battle.playerAction('attack')">🗡️ 普通攻击</button>
-      <button class="spell" onclick="battle.playerAction('spell')">🔥 释放法术<br><small>消耗10法力</small></button>
-      <button class="item" onclick="battle.playerAction('item')">💊 服用丹药</button>
-      <button class="flee" onclick="battle.playerAction('flee')">🏃 逃跑</button>
-      <button class="spell" onclick="battle.playerAction('weapon')">⚔️ 法宝攻击<br><small>飞剑</small></button>
+      <button class="attack" onclick="battle.playerAction('attack')">
+        🗡️ 普通攻击
+      </button>
+      <button class="spell" onclick="battle.playerAction('spell')">
+        🔥 释放法术<br><small>消耗10法力</small>
+      </button>
+      <button class="item" onclick="battle.playerAction('item')">
+        💊 服用丹药
+      </button>
+      <button class="flee" onclick="battle.playerAction('flee')">
+        🏃 逃跑
+      </button>
+      <button class="weapon" onclick="battle.playerAction('weapon')">
+        ⚔️ 法宝攻击<br><small>飞剑</small>
+      </button>
     </div>
   </div>
 </div>
@@ -286,10 +480,11 @@ const EXPLORE_EVENTS = [
   { text: "在山中打坐三日，心境通明，修为大涨", reward: { exp: 50, spirit: 30 }, cost: { lifespan: 3 }, weight: 15 },
 ];
 
+const ENEMY_EMOJIS = ["🐺", "🐍", "🦅", "🐗", "🦂", "🐯", "🦎", "🕷️", "🦇", "🐊", "👹", "💀", "👺", "🧟", "🐉"];
 const ENEMY_NAMES = [
-  "🐺 山狼", "🐍 毒蛇", "🦅 铁羽鹰", "🐗 钢牙猪", "🦂 毒蝎",
-  "🐯 斑纹虎", "🦎 地龙", "🕷️ 人面蛛", "🦇 血蝠", "🐊 沼泽鳄",
-  "👹 山魈", "💀 骷髅兵", "👺 魔修", "🧟 尸傀", "🐉 蛟龙"
+  "山狼", "毒蛇", "铁羽鹰", "钢牙猪", "毒蝎",
+  "斑纹虎", "地龙", "人面蛛", "血蝠", "沼泽鳄",
+  "山魈", "骷髅兵", "魔修", "尸傀", "蛟龙"
 ];
 
 // ============ 战斗系统 ============
@@ -307,10 +502,11 @@ class Battle {
   start() {
     const g = this.game;
     const r = g.getRealm();
-    
+
     // 玩家战斗属性
     this.player = {
       name: "你",
+      emoji: g.realmIndex >= 5 ? "👤" : "🧘‍♂️",
       maxHp: r.hp + g.layer * r.hp * 0.1,
       hp: r.hp + g.layer * r.hp * 0.1,
       maxMp: r.mp + g.layer * r.mp * 0.1,
@@ -323,14 +519,15 @@ class Battle {
     this.player.hp = this.player.maxHp;
     this.player.mp = this.player.maxMp;
 
-    // 生成敌人（同境界，属性略有波动）
+    // 生成敌人
+    const idx = Math.min(g.realmIndex, ENEMY_EMOJIS.length - 1);
     const enemyPower = Math.floor(r.power * (0.7 + Math.random() * 0.6) * (1 + g.layer * 0.05));
     const enemyHp = Math.floor(r.hp * (0.7 + Math.random() * 0.6) * (1 + g.layer * 0.05));
     const enemyMp = Math.floor(r.mp * 0.5);
-    const enemyName = ENEMY_NAMES[Math.min(g.realmIndex, ENEMY_NAMES.length - 1)] || ENEMY_NAMES[0];
-    
+
     this.enemy = {
-      name: enemyName,
+      name: ENEMY_NAMES[idx],
+      emoji: ENEMY_EMOJIS[idx],
       maxHp: enemyHp,
       hp: enemyHp,
       maxMp: enemyMp,
@@ -344,13 +541,12 @@ class Battle {
     this.active = true;
     this.turn = 1;
     this.weaponUsed = false;
-    
-    // 先手判定
     this.playerTurn = this.player.speed >= this.enemy.speed;
 
     this.showUI();
     this.updateUI();
-    this.game.log(`⚔️ 遭遇 ${this.enemy.name}！战斗开始！`);
+    this.game.log(`⚔️ 遭遇 ${this.enemy.emoji} ${this.enemy.name}！战斗开始！`);
+
     if (!this.playerTurn) {
       setTimeout(() => this.enemyAction(), 800);
     }
@@ -359,7 +555,10 @@ class Battle {
   showUI() {
     document.getElementById('normalPanel').classList.add('hidden');
     document.getElementById('battlePanel').classList.remove('hidden');
-    document.getElementById('battleActions').style.pointerEvents = 'auto';
+    document.getElementById('playerEmoji').textContent = this.player.emoji;
+    document.getElementById('enemyEmoji').textContent = this.enemy.emoji;
+    document.getElementById('enemyNameBattle').textContent = `${this.enemy.emoji} ${this.enemy.name}`;
+    document.getElementById('battleScene').classList.remove('victory', 'defeat');
   }
 
   hideUI() {
@@ -371,34 +570,72 @@ class Battle {
     const p = this.player;
     const e = this.enemy;
 
-    document.getElementById('playerHp').textContent = `${Math.floor(p.hp)}/${Math.floor(p.maxHp)}`;
-    document.getElementById('playerMp').textContent = `${Math.floor(p.mp)}/${Math.floor(p.maxMp)}`;
-    document.getElementById('playerHpBar').style.width = `${(p.hp / p.maxHp * 100)}%`;
-    document.getElementById('playerMpBar').style.width = `${(p.mp / p.maxMp * 100)}%`;
+    document.getElementById('playerHpText').textContent = `${Math.floor(p.hp)}/${Math.floor(p.maxHp)}`;
+    document.getElementById('playerHpFill').style.width = `${Math.max(0, p.hp / p.maxHp * 100)}%`;
 
-    document.getElementById('enemyName').textContent = e.name;
-    document.getElementById('enemyHp').textContent = `${Math.floor(e.hp)}/${Math.floor(e.maxHp)}`;
-    document.getElementById('enemyMp').textContent = `${Math.floor(e.mp)}/${Math.floor(e.maxMp)}`;
-    document.getElementById('enemyHpBar').style.width = `${(e.hp / e.maxHp * 100)}%`;
-    document.getElementById('enemyMpBar').style.width = `${(e.mp / e.maxMp * 100)}%`;
+    document.getElementById('enemyHpText').textContent = `${Math.floor(e.hp)}/${Math.floor(e.maxHp)}`;
+    document.getElementById('enemyHpFill').style.width = `${Math.max(0, e.hp / e.maxHp * 100)}%`;
 
-    document.getElementById('turnIndicator').textContent = 
-      this.playerTurn ? `⚔️ 第 ${this.turn} 回合 - 你的回合` : `⚔️ 第 ${this.turn} 回合 - ${e.name}的回合`;
+    document.getElementById('turnIndicator').textContent =
+      this.playerTurn ? `⚔️ 第 ${this.turn} 回合 - 你的回合` : `⚔️ 第 ${this.turn} 回合 - ${e.emoji} ${e.name}的回合`;
 
-    document.getElementById('playerCard').classList.toggle('active', this.playerTurn);
-    document.getElementById('enemyCard').classList.toggle('active', !this.playerTurn);
-
-    // 更新按钮状态
     const buttons = document.querySelectorAll('#battleActions button');
     buttons.forEach(btn => btn.disabled = !this.playerTurn || !this.active);
-    
-    // 法力不足时禁用法术
-    if (this.player.mp < 10) {
-      buttons[1].disabled = true;
+    if (this.player.mp < 10) buttons[1].disabled = true;
+    if (this.weaponUsed || !this.game.bag.weapon) buttons[4].disabled = true;
+  }
+
+  // 动画效果
+  showDamage(target, damage, isCrit = false, isHeal = false) {
+    const container = target === 'player' ? document.getElementById('playerContainer') : document.getElementById('enemyContainer');
+    const div = document.createElement('div');
+    div.className = `damage-number ${isCrit ? 'crit-number' : ''} ${isHeal ? 'heal-number' : ''}`;
+    div.textContent = isHeal ? `+${damage}` : `-${damage}`;
+    if (isCrit) div.textContent = `暴击! -${damage}`;
+    container.appendChild(div);
+    setTimeout(() => div.remove(), 1000);
+  }
+
+  showEffect(type, target) {
+    const container = target === 'player' ? document.getElementById('playerContainer') : document.getElementById('enemyContainer');
+    const effect = document.createElement('div');
+    effect.className = 'effect-overlay';
+
+    if (type === 'slash') {
+      effect.textContent = '⚔️';
+    } else if (type === 'spell') {
+      effect.textContent = '🔥';
+      effect.classList.add('effect-fire');
+    } else if (type === 'weapon') {
+      effect.textContent = '⚡';
+      effect.classList.add('effect-sword');
+    } else if (type === 'heal') {
+      effect.textContent = '💚';
+      effect.style.animation = 'none';
+      effect.style.fontSize = '2rem';
     }
-    // 法宝已用过禁用
-    if (this.weaponUsed || !this.game.bag.weapon) {
-      buttons[4].disabled = true;
+
+    container.appendChild(effect);
+    setTimeout(() => effect.remove(), 800);
+  }
+
+  animateAttack(attacker) {
+    if (attacker === 'player') {
+      document.getElementById('playerEmoji').classList.add('attack');
+      setTimeout(() => document.getElementById('playerEmoji').classList.remove('attack'), 500);
+    } else {
+      document.getElementById('enemyEmoji').classList.add('attack');
+      setTimeout(() => document.getElementById('enemyEmoji').classList.remove('attack'), 500);
+    }
+  }
+
+  animateHurt(target) {
+    if (target === 'player') {
+      document.getElementById('playerEmoji').classList.add('hurt');
+      setTimeout(() => document.getElementById('playerEmoji').classList.remove('hurt'), 500);
+    } else {
+      document.getElementById('enemyEmoji').classList.add('hurt');
+      setTimeout(() => document.getElementById('enemyEmoji').classList.remove('hurt'), 500);
     }
   }
 
@@ -408,33 +645,57 @@ class Battle {
     const p = this.player;
     const e = this.enemy;
     let damage = 0;
-    let msg = "";
+    let isCrit = false;
 
     switch(action) {
       case 'attack':
+        this.animateAttack('player');
         damage = this.calcDamage(p.attack, e.defense, p.critRate);
-        e.hp -= damage;
-        msg = `你使出普通攻击，造成 <span class="log-damage">${damage}</span> 点伤害！`;
-        break;
+        isCrit = damage > p.attack * 1.3;
+        setTimeout(() => {
+          e.hp -= damage;
+          this.showEffect('slash', 'enemy');
+          this.animateHurt('enemy');
+          this.showDamage('enemy', damage, isCrit);
+          this.game.log(`你使出普通攻击，造成 ${damage} 点伤害！`);
+          this.updateUI();
+          this.checkWin();
+        }, 300);
+        return; // 异步处理，后面统一
 
       case 'spell':
-        if (p.mp < 10) {
-          this.game.log("法力不足，无法施法！");
-          return;
-        }
+        if (p.mp < 10) { this.game.log("法力不足！"); return; }
         p.mp -= 10;
+        this.animateAttack('player');
         damage = this.calcDamage(p.attack * 1.5, e.defense, p.critRate);
-        e.hp -= damage;
-        msg = `你运转灵力释放法术，造成 <span class="log-damage">${damage}</span> 点伤害！`;
-        break;
+        isCrit = damage > p.attack * 1.5 * 1.3;
+        setTimeout(() => {
+          e.hp -= damage;
+          this.showEffect('spell', 'enemy');
+          this.animateHurt('enemy');
+          this.showDamage('enemy', damage, isCrit);
+          this.game.log(`你运转灵力释放法术🔥，造成 ${damage} 点伤害！`);
+          this.updateUI();
+          this.checkWin();
+        }, 300);
+        return;
 
       case 'weapon':
         if (this.weaponUsed) return;
         this.weaponUsed = true;
+        this.animateAttack('player');
         damage = this.calcDamage(p.attack * 2.2, e.defense, p.critRate);
-        e.hp -= damage;
-        msg = `你祭起飞剑，剑气纵横！造成 <span class="log-damage">${damage}</span> 点伤害！`;
-        break;
+        isCrit = damage > p.attack * 2.2 * 1.3;
+        setTimeout(() => {
+          e.hp -= damage;
+          this.showEffect('weapon', 'enemy');
+          this.animateHurt('enemy');
+          this.showDamage('enemy', damage, isCrit);
+          this.game.log(`你祭起飞剑⚡，剑气纵横！造成 ${damage} 点伤害！`);
+          this.updateUI();
+          this.checkWin();
+        }, 300);
+        return;
 
       case 'item':
         this.useBattleItem();
@@ -447,19 +708,20 @@ class Battle {
           this.end(false);
           return;
         } else {
-          msg = "你想逃跑，但被敌人拦住了去路！";
+          this.game.log("你想逃跑，但被敌人拦住了去路！");
+          this.playerTurn = false;
+          this.updateUI();
+          setTimeout(() => this.enemyAction(), 1000);
+          return;
         }
-        break;
     }
+  }
 
-    this.game.log(msg);
-    this.updateUI();
-
-    if (e.hp <= 0) {
+  checkWin() {
+    if (this.enemy.hp <= 0) {
       setTimeout(() => this.win(), 600);
       return;
     }
-
     this.playerTurn = false;
     this.updateUI();
     setTimeout(() => this.enemyAction(), 1000);
@@ -470,44 +732,66 @@ class Battle {
     const p = this.player;
     const e = this.enemy;
 
-    // 简单AI
     let action = 'attack';
     if (e.mp >= 10 && Math.random() < 0.4) action = 'spell';
     if (e.hp < e.maxHp * 0.3 && Math.random() < 0.3) action = 'heal';
 
     let damage = 0;
-    let msg = "";
+    let isCrit = false;
 
     switch(action) {
       case 'attack':
+        this.animateAttack('enemy');
         damage = this.calcDamage(e.attack, p.defense, e.critRate);
-        p.hp -= damage;
-        msg = `${e.name} 发动攻击，造成 <span class="log-damage">${damage}</span> 点伤害！`;
+        isCrit = damage > e.attack * 1.3;
+        setTimeout(() => {
+          p.hp -= damage;
+          this.animateHurt('player');
+          this.showDamage('player', damage, isCrit);
+          this.game.log(`${e.emoji} ${e.name} 发动攻击，造成 ${damage} 点伤害！`);
+          this.updateUI();
+          if (p.hp <= 0) setTimeout(() => this.lose(), 600);
+          else {
+            this.turn++;
+            this.playerTurn = true;
+            this.updateUI();
+          }
+        }, 300);
         break;
+
       case 'spell':
         e.mp -= 10;
+        this.animateAttack('enemy');
         damage = this.calcDamage(e.attack * 1.4, p.defense, e.critRate);
-        p.hp -= damage;
-        msg = `${e.name} 释放妖术，造成 <span class="log-damage">${damage}</span> 点伤害！`;
+        isCrit = damage > e.attack * 1.4 * 1.3;
+        setTimeout(() => {
+          p.hp -= damage;
+          this.showEffect('spell', 'player');
+          this.animateHurt('player');
+          this.showDamage('player', damage, isCrit);
+          this.game.log(`${e.emoji} ${e.name} 释放妖术🔥，造成 ${damage} 点伤害！`);
+          this.updateUI();
+          if (p.hp <= 0) setTimeout(() => this.lose(), 600);
+          else {
+            this.turn++;
+            this.playerTurn = true;
+            this.updateUI();
+          }
+        }, 300);
         break;
+
       case 'heal':
         const heal = Math.floor(e.maxHp * 0.2);
         e.hp = Math.min(e.maxHp, e.hp + heal);
-        msg = `${e.name} 运功疗伤，恢复了 <span class="log-heal">${heal}</span> 点气血！`;
+        this.showEffect('heal', 'enemy');
+        this.showDamage('enemy', heal, false, true);
+        this.game.log(`${e.emoji} ${e.name} 运功疗伤，恢复了 ${heal} 点气血💚！`);
+        this.updateUI();
+        this.turn++;
+        this.playerTurn = true;
+        this.updateUI();
         break;
     }
-
-    this.game.log(msg);
-    this.updateUI();
-
-    if (p.hp <= 0) {
-      setTimeout(() => this.lose(), 600);
-      return;
-    }
-
-    this.turn++;
-    this.playerTurn = true;
-    this.updateUI();
   }
 
   calcDamage(atk, def, critRate) {
@@ -519,28 +803,30 @@ class Battle {
   }
 
   useBattleItem() {
-    // 检查背包中的战斗道具
     const hasHpPill = this.game.bag.hpPill && this.game.bag.hpPill > 0;
     const hasMpPill = this.game.bag.mpPill && this.game.bag.mpPill > 0;
-    
+
     if (!hasHpPill && !hasMpPill) {
       this.game.log("没有可用的战斗丹药！");
       return;
     }
 
-    // 简单逻辑：优先回血
     if (hasHpPill) {
       this.game.bag.hpPill--;
       if (this.game.bag.hpPill <= 0) delete this.game.bag.hpPill;
       const heal = Math.floor(this.player.maxHp * 0.3);
       this.player.hp = Math.min(this.player.maxHp, this.player.hp + heal);
-      this.game.log(`你服下回春丹，恢复了 <span class="log-heal">${heal}</span> 点气血！`);
+      this.showEffect('heal', 'player');
+      this.showDamage('player', heal, false, true);
+      this.game.log(`你服下回春丹💚，恢复了 ${heal} 点气血！`);
     } else if (hasMpPill) {
       this.game.bag.mpPill--;
       if (this.game.bag.mpPill <= 0) delete this.game.bag.mpPill;
       const heal = Math.floor(this.player.maxMp * 0.3);
       this.player.mp = Math.min(this.player.maxMp, this.player.mp + heal);
-      this.game.log(`你服下回灵丹，恢复了 <span class="log-heal">${heal}</span> 点法力！`);
+      this.showEffect('heal', 'player');
+      this.showDamage('player', heal, false, true);
+      this.game.log(`你服下回灵丹💚，恢复了 ${heal} 点法力！`);
     }
 
     this.updateUI();
@@ -549,36 +835,34 @@ class Battle {
   }
 
   win() {
+    document.getElementById('battleScene').classList.add('victory');
     const g = this.game;
     const expGain = Math.floor(20 + g.realmIndex * 15 + Math.random() * 20);
     const stoneGain = Math.floor(2 + Math.random() * 5 + g.realmIndex);
     const r = Math.random();
     let extra = "";
-    
+
     g.exp += expGain;
     g.stones += stoneGain;
-    
-    if (r < 0.3) { g.addBag('herb', 1); extra = "灵草 x1 "; }
-    else if (r < 0.5) { g.addBag('hpPill', 1); extra = "回春丹 x1 "; }
-    else if (r < 0.6) { g.addBag('mpPill', 1); extra = "回灵丹 x1 "; }
-    else if (r < 0.65) { g.addBag('skill', 1); extra = "功法残页 x1 "; }
+
+    if (r < 0.3) { g.addBag('herb', 1); extra = "灵草 x1"; }
+    else if (r < 0.5) { g.addBag('hpPill', 1); extra = "回春丹 x1"; }
+    else if (r < 0.6) { g.addBag('mpPill', 1); extra = "回灵丹 x1"; }
+    else if (r < 0.65) { g.addBag('skill', 1); extra = "功法残页 x1"; }
 
     this.game.log(`🎉 战斗胜利！修为 +${expGain}，灵石 +${stoneGain}${extra ? '，获得 ' + extra : ''}`);
-    
-    // 恢复部分气血法力
-    g.hp = Math.min(g.maxHp, g.hp + g.maxHp * 0.2);
-    g.mp = Math.min(g.maxMp, g.mp + g.maxMp * 0.2);
-    
-    this.end(true);
+
+    setTimeout(() => this.end(true), 1500);
   }
 
   lose() {
+    document.getElementById('battleScene').classList.add('defeat');
     this.game.log("💀 你重伤倒地，敌人扬长而去...");
     this.game.lifespan -= 10;
     if (this.game.lifespan <= 0) {
-      setTimeout(() => this.game.death("斗法失败，重伤不治，身死道消..."), 500);
+      setTimeout(() => this.game.death("斗法失败，重伤不治，身死道消..."), 800);
     }
-    this.end(false);
+    setTimeout(() => this.end(false), 1000);
   }
 
   end(won) {
@@ -586,7 +870,7 @@ class Battle {
     setTimeout(() => {
       this.hideUI();
       this.game.updateUI();
-    }, won ? 1200 : 800);
+    }, won ? 1500 : 800);
   }
 }
 
@@ -620,7 +904,6 @@ class Game {
     return Math.floor(r.expBase * (1 + (this.layer - 1) * 0.2));
   }
 
-  // 战斗属性
   get maxHp() {
     const r = this.getRealm();
     return r.hp + this.layer * r.hp * 0.1;
@@ -719,7 +1002,6 @@ class Game {
     this.log(`🏔 ${event.text}`);
     this.updateUI();
 
-    // 历练可能遭遇战斗
     if (Math.random() < 0.3) {
       setTimeout(() => this.enterBattle(), 800);
       return;
